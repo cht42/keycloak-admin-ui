@@ -3,6 +3,10 @@ import KeycloakProvider from "next-auth/providers/keycloak";
 
 export default NextAuth({
   secret: process.env.SECRET,
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
   providers: [
     KeycloakProvider({
       clientId: process.env.KEYCLOAK_CLIENT_ID,
