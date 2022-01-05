@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  app:
+    build: .
+    environment:
+      NODE_TLS_REJECT_UNAUTHORIZED: 0
+      
+      SECRET: ${SECRET}
+      NEXTAUTH_URL: http://localhost:3000
+
+      KEYCLOAK_URL: ${KEYCLOAK_URL}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
+    volumes:
+      - ./app:/app
+    ports:
+      - 3000:3000
