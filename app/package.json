@@ -13,6 +13,7 @@
     "react-dom": "17.0.2",
     "next-auth": "4.0.6",
     "@keycloak/keycloak-admin-client": "16.1.0",
+    "openid-client": "5.1.1",
     "react-query": "3.34.7",
     "react-hook-form": "7.22.5",
     "minio": "7.0.25",

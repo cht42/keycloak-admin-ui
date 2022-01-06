@@ -28,7 +28,7 @@ export const Header = () => {
                 return <LoadingButton loading>Loading</LoadingButton>;
               case "authenticated":
                 return (
-                  <Button startIcon={<Logout />} onClick={() => signOut()}>
+                  <Button startIcon={<Logout />} onClick={() => signOut({ callbackUrl: "/" })}>
                     Sign Out
                   </Button>
                 );
