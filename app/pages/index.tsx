@@ -1,10 +1,17 @@
+import { Button, Link } from "@mui/material";
 import type { NextPage } from "next";
-import Link from "next/link";
+import * as NextLink from "next/link";
 
 const Home: NextPage = () => {
   return (
     <>
-      <Link href="/users">Users</Link>
+      <NextLink.default href="/users">
+        <Button>Users</Button>
+      </NextLink.default>
+      <br />
+      <NextLink.default href="/buckets">
+        <Button>Buckets</Button>
+      </NextLink.default>
     </>
   );
 };

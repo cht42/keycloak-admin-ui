@@ -2,35 +2,46 @@ import type { AppProps } from "next/app";
 
 import { SessionProvider, signIn, useSession } from "next-auth/react";
 
-import { GeistProvider, CssBaseline, Page, Loading } from "@geist-ui/react";
 import { Header } from "../components/Header";
 import { useEffect } from "react";
 import { NextPage } from "next";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { Container, CssBaseline, LinearProgress, ThemeProvider } from "@mui/material";
+import createEmotionCache from "../src/createEmotionCache";
+import { CacheProvider, EmotionCache } from "@emotion/react";
+import theme from "../src/theme";
 
 export type NextApplicationPage<P = any, IP = P> = NextPage<P, IP> & {
   protected?: boolean;
 };
 
+const clientSideEmotionCache = createEmotionCache();
+
 const queryClient = new QueryClient();
 
-const MyApp = (props: AppProps) => {
+interface MyAppProps extends AppProps {
+  emotionCache?: EmotionCache;
+}
+
+const MyApp = (props: MyAppProps) => {
   const {
     Component,
+    emotionCache = clientSideEmotionCache,
     pageProps: { session, ...pageProps },
   }: {
     Component: NextApplicationPage;
+    emotionCache?: EmotionCache;
     pageProps: any;
   } = props;
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <SessionProvider session={session}>
-        <GeistProvider themeType="light">
-          <CssBaseline />
-          <Page>
+    <SessionProvider session={session}>
+      <CacheProvider value={emotionCache}>
+        <ThemeProvider theme={theme}>
+          <QueryClientProvider client={queryClient}>
+            <CssBaseline />
             <Header />
-            <Page.Body>
+            <Container sx={{ my: 3 }}>
               {Component.protected ? (
                 <Protected>
                   <Component {...pageProps} />
@@ -38,11 +49,11 @@ const MyApp = (props: AppProps) => {
               ) : (
                 <Component {...pageProps} />
               )}
-            </Page.Body>
-          </Page>
-        </GeistProvider>
-      </SessionProvider>
-    </QueryClientProvider>
+            </Container>
+          </QueryClientProvider>
+        </ThemeProvider>
+      </CacheProvider>
+    </SessionProvider>
   );
 };
 
@@ -57,7 +68,7 @@ const Protected = ({ children }: { children: JSX.Element }) => {
 
   if (isUser) return children;
 
-  return <Loading />;
+  return <LinearProgress />;
 };
 
 export default MyApp;

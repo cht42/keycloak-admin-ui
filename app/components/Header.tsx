@@ -1,45 +1,47 @@
-import { Button, Grid, Link, Page, Text } from "@geist-ui/react";
-import { Home, LogIn, LogOut } from "@geist-ui/react-icons";
+import { Login, Logout } from "@mui/icons-material";
+import { LoadingButton } from "@mui/lab";
+import { AppBar, Button, Stack, Toolbar, Typography } from "@mui/material";
+
 import { signIn, signOut, useSession } from "next-auth/react";
-import * as NextLink from "next/link";
+
+import { NextLinkComposed } from "../src/Link";
 
 export const Header = () => {
   const { status } = useSession();
 
   return (
-    <Page.Header>
-      <Grid.Container gap={2} alignItems="center" justify="space-between">
-        <Grid>
-          <NextLink.default href="/">
-            <Link>
-              <Home />
-            </Link>
-          </NextLink.default>
-        </Grid>
-        <Grid>
-          <Text h1>Admin panel</Text>
-        </Grid>
-        <Grid>
+    <AppBar position="static">
+      <Toolbar>
+        <Stack
+          direction="row"
+          sx={{ width: "100%" }}
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <Button component={NextLinkComposed} to="/">
+            Home
+          </Button>
+          <Typography>Admin panel</Typography>
           {(() => {
             switch (status) {
               case "loading":
-                return <Button loading>Action</Button>;
+                return <LoadingButton loading>Loading</LoadingButton>;
               case "authenticated":
                 return (
-                  <Button icon={<LogOut />} onClick={() => signOut()}>
+                  <Button startIcon={<Logout />} onClick={() => signOut()}>
                     Sign Out
                   </Button>
                 );
               case "unauthenticated":
                 return (
-                  <Button icon={<LogIn />} onClick={() => signIn()}>
+                  <Button startIcon={<Login />} onClick={() => signIn()}>
                     Sign In
                   </Button>
                 );
             }
           })()}
-        </Grid>
-      </Grid.Container>
-    </Page.Header>
+        </Stack>
+      </Toolbar>
+    </AppBar>
   );
 };

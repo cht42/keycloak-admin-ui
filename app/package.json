@@ -12,17 +12,25 @@
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "next-auth": "4.0.6",
-    "@geist-ui/react": "2.2.0",
-    "@geist-ui/react-icons": "1.0.1",
     "@keycloak/keycloak-admin-client": "16.1.0",
     "react-query": "3.34.7",
-    "react-hook-form": "7.22.5"
+    "react-hook-form": "7.22.5",
+    "minio": "7.0.25",
+    "@mui/material": "5.2.7",
+    "@emotion/react": "11.7.1",
+    "@emotion/styled": "11.6.0",
+    "@emotion/server": "11.4.0",
+    "@fontsource/roboto": "4.5.1",
+    "@mui/icons-material": "5.2.5",
+    "@mui/lab": "5.0.0-alpha.63",
+    "@mui/x-data-grid": "5.2.1"
   },
   "devDependencies": {
     "@types/node": "17.0.8",
     "@types/react": "17.0.38",
     "eslint": "8.6.0",
     "eslint-config-next": "12.0.7",
-    "typescript": "4.5.4"
+    "typescript": "4.5.4",
+    "@types/minio": "7.0.11"
   }
 }
