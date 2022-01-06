@@ -6,9 +6,7 @@ declare global {
       KEYCLOAK_CLIENT_ID: string;
       KEYCLOAK_CLIENT_SECRET: string;
       MINIO_ENDPOINT: string;
-      MINIO_PORT: number;
-      MINIO_ACCESS_KEY: string;
-      MINIO_SECRET_KEY: string;
+      MINIO_PORT: string;
     }
   }
 }

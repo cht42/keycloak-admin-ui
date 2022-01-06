@@ -1,5 +1,6 @@
 import { Button, Stack, TextField, Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
+import { getSession } from "next-auth/react";
 import { Controller, useForm } from "react-hook-form";
 
 interface IBucket {
@@ -38,13 +39,33 @@ const Buckets = ({ buckets }: { buckets: IBucket[] }) => {
 };
 
 export async function getServerSideProps({ req }) {
+  const session = await getSession({ req });
+
+  const webId = await fetch(
+    `http://${process.env.MINIO_ENDPOINT}:${process.env.MINIO_PORT}?` +
+      new URLSearchParams({
+        Action: "AssumeRoleWithWebIdentity",
+        WebIdentityToken: session?.accessToken,
+        Version: "2011-06-15",
+        DurationSeconds: 604800,
+      }),
+    { method: "POST" }
+  );
+
+  const parseString = require("xml2js").parseString;
+  let data = null;
+  parseString(await webId.text(), { explicitArray: false }, (err, result) => (data = result));
+  const credentials =
+    data.AssumeRoleWithWebIdentityResponse.AssumeRoleWithWebIdentityResult.Credentials;
+
   const Minio = require("minio");
   const minioClient = new Minio.Client({
     endPoint: process.env.MINIO_ENDPOINT,
     port: parseInt(process.env.MINIO_PORT),
     useSSL: false,
-    accessKey: process.env.MINIO_ACCESS_KEY,
-    secretKey: process.env.MINIO_SECRET_KEY,
+    accessKey: credentials.AccessKeyId,
+    secretKey: credentials.SecretAccessKey,
+    sessionToken: credentials.SessionToken,
   });
   let buckets = await minioClient.listBuckets();
 

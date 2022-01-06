@@ -16,8 +16,6 @@ services:
 
       MINIO_ENDPOINT: ${MINIO_ENDPOINT}
       MINIO_PORT: ${MINIO_PORT}
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
     volumes:
       - ./app:/app
     ports:
