@@ -11,8 +11,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   switch (method) {
     case "POST":
-      console.log(body);
-
       const webId = await fetch(
         `http://${process.env.MINIO_ENDPOINT}:${process.env.MINIO_PORT}?` +
           new URLSearchParams({
@@ -39,8 +37,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         secretKey: credentials.SecretAccessKey,
         sessionToken: credentials.SessionToken,
       });
-      minioClient.makeBucket(body.name);
-      res.status(200).end();
+      minioClient.makeBucket(body.name, (err) => {
+        if (err) res.status(400).json({ error: err });
+        res.status(200).end();
+      });
       break;
 
     default:

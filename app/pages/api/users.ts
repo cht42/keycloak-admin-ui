@@ -20,9 +20,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const resp = await kcAdminClient.users.create({
         username: body.username,
-        attributes: {
-          policy: body.policy.join(","),
-        },
         credentials: [
           {
             type: "password",
