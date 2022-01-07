@@ -15,14 +15,17 @@ import {
   Button,
   Typography,
   ButtonProps,
+  IconButton,
 } from "@mui/material";
 import React from "react";
 import { IGroup } from "../../types";
 import {
+  Add,
   KeyboardArrowLeft,
   KeyboardArrowRight,
   KeyboardDoubleArrowLeft,
   KeyboardDoubleArrowRight,
+  Remove,
 } from "@mui/icons-material";
 import { useMutation } from "react-query";
 import { useRouter } from "next/router";
@@ -31,81 +34,25 @@ const not = (a: IGroup[], b: IGroup[]) => {
   return a.filter((group) => b.findIndex((gr) => gr.id === group.id) === -1);
 };
 
-const intersection = (a: IGroup[], b: IGroup[]) => {
-  return a.filter((group) => b.findIndex((gr) => gr.id === group.id) !== -1);
-};
-
-const buttonProps: ButtonProps = { variant: "outlined", size: "small" };
-
 const User = ({ user, userGroups, groups }: { userGroups: IGroup[]; groups: IGroup[] }) => {
   const router = useRouter();
   const { id } = router.query;
 
-  const [checked, setChecked] = React.useState<IGroup[]>([]);
-  const [left, setLeft] = React.useState(userGroups);
-  const [right, setRight] = React.useState(not(groups, userGroups));
-
-  const leftChecked = intersection(checked, left);
-  const rightChecked = intersection(checked, right);
-
-  const handleToggle = (group: IGroup) => () => {
-    const currentIndex = checked.indexOf(group);
-    const newChecked = [...checked];
-
-    if (currentIndex === -1) {
-      newChecked.push(group);
-    } else {
-      newChecked.splice(currentIndex, 1);
-    }
-
-    setChecked(newChecked);
-  };
-
-  const handleAllRight = () => {
-    setRight(right.concat(left));
-    setLeft([]);
-  };
-
-  const handleCheckedRight = () => {
-    setRight(right.concat(leftChecked));
-    setLeft(not(left, leftChecked));
-    setChecked(not(checked, leftChecked));
-  };
-
-  const handleCheckedLeft = () => {
-    setLeft(left.concat(rightChecked));
-    setRight(not(right, rightChecked));
-    setChecked(not(checked, rightChecked));
-  };
-
-  const handleAllLeft = () => {
-    setLeft(left.concat(right));
-    setRight([]);
-  };
-
-  const customList = (groups: IGroup[]) => (
-    <List>
-      {groups.map((group) => {
-        return (
-          <ListItem key={group.id} button onClick={handleToggle(group)}>
-            <ListItemIcon>
-              <Checkbox checked={checked.indexOf(group) !== -1} />
-            </ListItemIcon>
-            <ListItemText primary={group.name} />
-          </ListItem>
-        );
-      })}
-    </List>
-  );
+  const left = userGroups;
+  const right = not(groups, userGroups);
 
   const updateGroups = useMutation(
-    (newGroups: IGroup[]) =>
+    ({ groupId, action }: { groupId: string; action: string }) =>
       fetch(`/api/users/${id}/groups`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newGroups),
+        body: JSON.stringify({ groupId, action }),
       }),
-    { onSuccess: () => console.log("success") }
+    {
+      onSuccess: () => {
+        router.replace(router.asPath);
+      },
+    }
   );
 
   return (
@@ -123,34 +70,45 @@ const User = ({ user, userGroups, groups }: { userGroups: IGroup[]; groups: IGro
         <Card sx={{ width: "100%" }}>
           <CardContent>
             <Typography>User groups</Typography>
-            {customList(left)}
+            <List>
+              {left.map((group) => (
+                <ListItem
+                  key={group.id}
+                  secondaryAction={
+                    <IconButton>
+                      <Remove />
+                    </IconButton>
+                  }
+                  onClick={() => updateGroups.mutate({ groupId: group.id, action: "leave" })}
+                >
+                  <ListItemText primary={group.name} />
+                </ListItem>
+              ))}
+            </List>
           </CardContent>
         </Card>
-        <Stack spacing={1}>
-          <Button {...buttonProps} onClick={handleAllRight} disabled={left.length === 0}>
-            <KeyboardDoubleArrowRight />
-          </Button>
-          <Button {...buttonProps} onClick={handleCheckedRight} disabled={leftChecked.length === 0}>
-            <KeyboardArrowRight />
-          </Button>
-          <Button {...buttonProps} onClick={handleCheckedLeft} disabled={rightChecked.length === 0}>
-            <KeyboardArrowLeft />
-          </Button>
-          <Button {...buttonProps} onClick={handleAllLeft} disabled={right.length === 0}>
-            <KeyboardDoubleArrowLeft />
-          </Button>
-        </Stack>
+
         <Card sx={{ width: "100%" }}>
           <CardContent>
             <Typography>Available groups</Typography>
-            {customList(right)}
+            <List>
+              {right.map((group) => (
+                <ListItem
+                  key={group.id}
+                  secondaryAction={
+                    <IconButton>
+                      <Add />
+                    </IconButton>
+                  }
+                  onClick={() => updateGroups.mutate({ groupId: group.id, action: "join" })}
+                >
+                  <ListItemText primary={group.name} />
+                </ListItem>
+              ))}
+            </List>
           </CardContent>
         </Card>
       </Stack>
-
-      <Button variant="contained" sx={{ width: 100 }} onClick={() => updateGroups.mutate(left)}>
-        Save
-      </Button>
     </Stack>
   );
 };

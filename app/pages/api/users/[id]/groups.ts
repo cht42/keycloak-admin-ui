@@ -19,12 +19,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         realmName: process.env.KEYCLOAK_REALM,
       });
       kcAdminClient.setAccessToken(session.accessToken);
-      body.forEach(async (group: IGroup) => {
-        await kcAdminClient.users.addToGroup({
-          groupId: group.id,
-          id: id,
-        });
-      });
+      switch (body.action) {
+        case "leave":
+          await kcAdminClient.users.delFromGroup({
+            groupId: body.groupId,
+            id: id,
+          });
+          break;
+        case "join":
+          await kcAdminClient.users.addToGroup({
+            groupId: body.groupId,
+            id: id,
+          });
+          break;
+      }
       res.status(200).end();
       break;
 
