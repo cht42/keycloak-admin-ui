@@ -17,9 +17,9 @@ import {
   Avatar,
   ListItemText,
 } from "@mui/material";
-import { NextLinkComposed } from "../src/Link";
+import { NextLinkComposed } from "../../src/Link";
 import { GetServerSideProps } from "next";
-import { IUser } from "../types";
+import { IUser } from "../../types";
 
 const Users = ({ users }: { users: IUser[] }) => {
   const router = useRouter();

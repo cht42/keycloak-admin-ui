@@ -8,3 +8,9 @@ export interface IBucket {
   name: string;
   creationDate: string;
 }
+
+export interface IGroup {
+  id: string;
+  name: string;
+  path: string;
+}
