@@ -1,17 +1,31 @@
 import { Button, Stack, TextField, Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { getSession } from "next-auth/react";
+import { useRouter } from "next/router";
 import { Controller, useForm } from "react-hook-form";
-
-interface IBucket {
-  name: string;
-  creationDate: string;
-}
+import { useMutation } from "react-query";
+import { IBucket } from "../types";
 
 const Buckets = ({ buckets }: { buckets: IBucket[] }) => {
+  const router = useRouter();
   const { control, handleSubmit, reset } = useForm();
 
-  const onSubmit = (data: { name: string }) => console.log(data);
+  const createBucket = useMutation(
+    (name: string) =>
+      fetch("/api/buckets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name }),
+      }),
+    {
+      onSuccess: () => {
+        reset();
+        router.replace(router.asPath);
+      },
+    }
+  );
+
+  const onSubmit = (data: { name: string }) => createBucket.mutate(data.name);
 
   const columns = [
     { field: "name", headerName: "Name", flex: 1 },
@@ -48,7 +62,7 @@ export async function getServerSideProps({ req }) {
         Action: "AssumeRoleWithWebIdentity",
         WebIdentityToken: session?.accessToken,
         Version: "2011-06-15",
-        DurationSeconds: 604800,
+        DurationSeconds: "604800",
       }),
     { method: "POST" }
   );

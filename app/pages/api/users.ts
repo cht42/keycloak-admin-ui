@@ -4,11 +4,14 @@ import KcAdminClient from "@keycloak/keycloak-admin-client";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method, body } = req;
+  const session = await getSession({ req });
+  if (!session) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
 
   switch (method) {
     case "POST":
-      console.log(body);
-      const session = await getSession({ req });
       const kcAdminClient = new KcAdminClient({
         baseUrl: process.env.KEYCLOAK_URL + "/auth",
         realmName: process.env.KEYCLOAK_REALM,
