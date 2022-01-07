@@ -40,6 +40,7 @@ const Buckets = ({ buckets }: { buckets: IBucket[] }) => {
 
 export async function getServerSideProps({ req }) {
   const session = await getSession({ req });
+  if (!session) return { props: {} };
 
   const webId = await fetch(
     `http://${process.env.MINIO_ENDPOINT}:${process.env.MINIO_PORT}?` +

@@ -7,31 +7,28 @@ import { Controller, useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import {
   Box,
-  MenuItem,
   Stack,
   TextField,
-  Select,
-  FormControl,
-  InputLabel,
   Button,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemAvatar,
+  Avatar,
+  ListItemText,
 } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { NextLinkComposed } from "../src/Link";
+import { GetServerSideProps } from "next";
 
 interface IUser {
-  username: string;
-  policy: string;
+  id?: string;
+  username?: string;
   password?: string;
 }
 
-const Users = ({ users }: { users: any[] }) => {
+const Users = ({ users }: { users: IUser[] }) => {
   const router = useRouter();
   const { control, handleSubmit, reset } = useForm();
-
-  const data: IUser[] = users.map((user) => ({
-    username: user.username,
-    policy: user.attributes?.policy || "-",
-    id: user.id,
-  }));
 
   const createUser = useMutation(
     (newUser: IUser) =>
@@ -49,11 +46,6 @@ const Users = ({ users }: { users: any[] }) => {
   );
 
   const onSubmit = (data: IUser) => createUser.mutate(data);
-
-  const columns = [
-    { field: "username", headerName: "Username", flex: 1 },
-    { field: "policy", headerName: "Minio policy", flex: 1 },
-  ];
 
   return (
     <Stack spacing={2}>
@@ -75,36 +67,31 @@ const Users = ({ users }: { users: any[] }) => {
               <TextField fullWidth label="Temporary password" type="password" {...field} />
             )}
           />
-          <Controller
-            name="policy"
-            control={control}
-            rules={{ required: true }}
-            defaultValue={[]}
-            render={({ field }) => (
-              <FormControl fullWidth>
-                <InputLabel>Minio policy</InputLabel>
-                <Select {...field} multiple label="Minio policy">
-                  <MenuItem value="readonly">readonly</MenuItem>
-                  <MenuItem value="writeonly">writeonly</MenuItem>
-                  <MenuItem value="readwrite">readwrite</MenuItem>
-                  <MenuItem value="minioUser">minioUser</MenuItem>
-                  <MenuItem value="minioSuperuser">minioSuperuser</MenuItem>
-                </Select>
-              </FormControl>
-            )}
-          />
           <Button fullWidth type="submit">
             Add user
           </Button>
         </Stack>
       </Box>
-      <DataGrid rows={data} columns={columns} autoHeight />
+      <List>
+        {users.map((user) => (
+          <ListItem key={user.id}>
+            <ListItemButton component={NextLinkComposed} to={`/users/${user.id}`}>
+              <ListItemAvatar>
+                <Avatar>{user.username?.toUpperCase()[0]}</Avatar>
+              </ListItemAvatar>
+              <ListItemText primary={user.username} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
     </Stack>
   );
 };
 
-export async function getServerSideProps({ req }) {
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const session = await getSession({ req });
+  if (!session) return { props: {} };
+
   const kcAdminClient = new KcAdminClient({
     baseUrl: process.env.KEYCLOAK_URL + "/auth",
     realmName: process.env.KEYCLOAK_REALM,
@@ -113,8 +100,13 @@ export async function getServerSideProps({ req }) {
 
   const users = await kcAdminClient.users.find();
 
-  return { props: { users } };
-}
+  const data: IUser[] = users.map((user) => ({
+    username: user.username,
+    id: user.id,
+  }));
+
+  return { props: { users: data } };
+};
 
 Users.protected = true;
 

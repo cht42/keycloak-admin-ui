@@ -1,9 +1,9 @@
-import NextAuth from "next-auth";
+import NextAuth, { Awaitable } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import KeycloakProvider from "next-auth/providers/keycloak";
 import { Issuer } from "openid-client";
 
-const refreshToken = async (token: JWT) => {
+const refreshToken = async (token: JWT): Promise<any> => {
   try {
     const keycloakIssuer = await Issuer.discover(
       process.env.KEYCLOAK_URL + "/auth/realms/" + process.env.KEYCLOAK_REALM
@@ -18,8 +18,8 @@ const refreshToken = async (token: JWT) => {
 
     return {
       ...token,
-      accessToken: tokenSet.access_token,
-      accessTokenExpires: tokenSet.expires_at,
+      accessToken: tokenSet.access_token || "",
+      accessTokenExpires: tokenSet.expires_at || 0,
       refreshToken: tokenSet.refresh_token ?? token.refreshToken,
     };
   } catch (error) {
